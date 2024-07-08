@@ -13,11 +13,11 @@ public class ForecastController {
 
     @GetMapping("/wind")
     public String getWindInfo() {
-        return weatherForecastService.getWindForecastMessage();
+        return weatherForecastService.getWindForecastMessage(null);
     }
 
     @GetMapping("/weather")
     public String getForecast() {
-        return weatherForecastService.getWeatherMessage();
+        return weatherForecastService.getWeatherMessage(null);
     }
 }

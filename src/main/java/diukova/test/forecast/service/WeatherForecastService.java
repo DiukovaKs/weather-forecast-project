@@ -1,10 +1,13 @@
 package diukova.test.forecast.service;
 
+import diukova.test.forecast.dao.CityEntity;
+import diukova.test.forecast.dto.request.ForecastServiceUrlParametersDto;
 import diukova.test.forecast.dto.response.CurrentForecastDto;
 import diukova.test.forecast.dto.response.WeatherForecastDto;
 import diukova.test.forecast.mapper.DtoMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,14 +21,20 @@ public class WeatherForecastService {
 
     private final DtoMapper mapper;
     private final ForecastUrlBuilder forecastUrlBuilder;
+
+    @Autowired
+    private final CityService service;
+    @Autowired
+    private final ChatToCityService chatToCityService;
+
     final RestTemplate restTemplate = new RestTemplate();
 
     public CurrentForecastDto getForecast() {
-        return getCurrentWeather();
+        return getCurrentWeather(null);
     }
 
-    public String getWeatherMessage() {
-        CurrentForecastDto dto = getCurrentWeather();
+    public String getWeatherMessage(Long chatId) {
+        CurrentForecastDto dto = getCurrentWeather(chatId);
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd MMMM");
 
         String forecastMessage = "Weather for " + dateFormat.format(LocalDateTime.now()) + "\n" +
@@ -40,8 +49,8 @@ public class WeatherForecastService {
         return forecastMessage;
     }
 
-    public String getWindForecastMessage() {
-        CurrentForecastDto dto = getCurrentWeather();
+    public String getWindForecastMessage(Long chatId) {
+        CurrentForecastDto dto = getCurrentWeather(chatId);
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd MMMM");
 
         String forecastMessage = "Wind forecast for " + dateFormat.format(LocalDateTime.now()) + "\n" +
@@ -55,8 +64,22 @@ public class WeatherForecastService {
         return forecastMessage;
     }
 
-    private CurrentForecastDto getCurrentWeather() {
-        final WeatherForecastDto dto = restTemplate.getForObject(forecastUrlBuilder.getDefaultURL(), WeatherForecastDto.class);
+    private CurrentForecastDto getCurrentWeather(Long chatId) {
+        WeatherForecastDto dto;
+        if (chatId == null) {
+            dto = restTemplate.getForObject(forecastUrlBuilder.getDefaultURL(), WeatherForecastDto.class);
+        } else {
+            Long cityId = chatToCityService.getCityId(chatId);
+            CityEntity city = service.getCityById(cityId);
+
+            ForecastServiceUrlParametersDto parameters = forecastUrlBuilder.getDefaultParameters();
+            parameters.setLatitude(city.getLatitude().replace(',', '.'));
+            parameters.setLongitude(city.getLongitude().replace(',', '.'));
+
+            String url = forecastUrlBuilder.createForecastUrl(parameters);
+
+            dto = restTemplate.getForObject(url, WeatherForecastDto.class);
+        }
 
         return mapper.toCurrentForecastDto(dto);
     }
