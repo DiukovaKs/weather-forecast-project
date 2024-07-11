@@ -38,11 +38,11 @@ public class WeatherForecastService {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd MMMM");
 
         String forecastMessage = "Weather for " + dateFormat.format(LocalDateTime.now()) + "\n" +
-                " Time     Temp. °C          Hum. %  Precipt. % \n" +
-                " 8 AM     " + dto.getTemperature()[0] + " °C   " + dto.getWeatherCode()[0] + "       " + dto.getHumidity()[0] + " %      " + dto.getPrecipitation()[0] + " % \n" +
-                " 12 PM   " + dto.getTemperature()[1] + " °C   " + dto.getWeatherCode()[1] + "       " + dto.getHumidity()[1] + " %      " + dto.getPrecipitation()[1] + " % \n" +
-                " 4 PM     " + dto.getTemperature()[2] + " °C   " + dto.getWeatherCode()[2] + "       " + dto.getHumidity()[2] + " %      " + dto.getPrecipitation()[2] + " % \n" +
-                " 8 PM     " + dto.getTemperature()[3] + " °C   " + dto.getWeatherCode()[3] + "       " + dto.getHumidity()[3] + " %      " + dto.getPrecipitation()[3] + " % \n";
+                " Time     Temp. °C          Hum. %    UV\n" +
+                " 8 AM       " + dto.getTemperature()[0] + "      " + dto.getWeatherCode()[0] + "         " + dto.getHumidity()[0] + "         " + dto.getUvIndex()[0] + "\n" +
+                " 12 PM     " + dto.getTemperature()[1] + "      " + dto.getWeatherCode()[1] + "         " + dto.getHumidity()[1] + "         " + dto.getUvIndex()[1] + "\n" +
+                " 4 PM       " + dto.getTemperature()[2] + "      " + dto.getWeatherCode()[2] + "         " + dto.getHumidity()[2] + "         " + dto.getUvIndex()[2] + "\n" +
+                " 8 PM       " + dto.getTemperature()[3] + "      " + dto.getWeatherCode()[3] + "         " + dto.getHumidity()[3] + "         " + dto.getUvIndex()[3] + "\n";
 
         log.debug(forecastMessage);
 
@@ -66,6 +66,7 @@ public class WeatherForecastService {
 
     private CurrentForecastDto getCurrentWeather(Long chatId) {
         WeatherForecastDto dto;
+
         if (chatId == null) {
             dto = restTemplate.getForObject(forecastUrlBuilder.getDefaultURL(), WeatherForecastDto.class);
         } else {

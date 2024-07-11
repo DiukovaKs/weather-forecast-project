@@ -11,11 +11,13 @@ public class ForecastController {
 
     private final WeatherForecastService weatherForecastService;
 
+    /*Get wind info for default city (Wellington)*/
     @GetMapping("/wind")
     public String getWindInfo() {
         return weatherForecastService.getWindForecastMessage(null);
     }
 
+    /*Get weather info for default city (Wellington)*/
     @GetMapping("/weather")
     public String getForecast() {
         return weatherForecastService.getWeatherMessage(null);

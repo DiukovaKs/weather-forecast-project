@@ -1,6 +1,8 @@
 package diukova.test.forecast.service;
 
 import diukova.test.forecast.config.BotConfig;
+import diukova.test.forecast.dao.CityEntity;
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -8,17 +10,29 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @AllArgsConstructor
 public class TelegramBot extends TelegramLongPollingBot {
+    private static final Map<Long, String> CITIES_MAP = new HashMap<>();
+
     private final BotConfig botConfig;
     private final WeatherForecastService weatherForecastService;
+    private final TelegramBotButtonsBuilder buttonsBuilder;
+
+    @Autowired
+    private final CityService cityService;
+
+    @PostConstruct
+    public void init() {
+        List<CityEntity> cities = cityService.getCities();
+        cities.forEach(e -> CITIES_MAP.put(e.getId(), e.getCity()));
+    }
 
     @Autowired
     private ChatToCityService service;
@@ -41,49 +55,19 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         if (isCallBackMessage(update)) {
             messageText = update.getCallbackQuery().getData();
-            String buttonText = update.getCallbackQuery().getMessage().getText();
-            System.out.println("Message button text: " + buttonText);
             chatId = update.getCallbackQuery().getMessage().getChatId();
 
-            answer = "The city was saved successfully! Please, type the command!";
+            answer = "The city was saved successfully! " +
+                    "Please, type the command to check weather for " +
+                    CITIES_MAP.get(Long.parseLong(messageText)) + "!";
 
-            switch (messageText){
-                case "/Wellington":
-                    service.setCityToChat(chatId, 1L);
-                    sendMessage(chatId, answer);
-                    break;
-                case "/Auckland":
-                    service.setCityToChat(chatId, 2L);
-                    sendMessage(chatId, answer);
-                    break;
-                case "/Rotorua":
-                    service.setCityToChat(chatId, 3L);
-                    sendMessage(chatId, answer);
-                    break;
-                case "/Petone":
-                    service.setCityToChat(chatId, 4L);
-                    sendMessage(chatId, answer);
-                    break;
-                case "/Lower Hutt":
-                    service.setCityToChat(chatId, 5L);
-                    sendMessage(chatId, answer);
-                    break;
-                case "/Upper Hutt":
-                    service.setCityToChat(chatId, 6L);
-                    sendMessage(chatId, answer);
-                    break;
-                case "/Christchurch":
-                    service.setCityToChat(chatId, 8L);
-                    sendMessage(chatId, answer);
-                    break;
-                case "/Novosibirsk":
-                    service.setCityToChat(chatId, 7L);
-                    sendMessage(chatId, answer);
-                    break;
-                default:
-                    sendMessage(chatId, "I dont know this command!");
-                    break;
+            if (messageText.matches("\\d")) {
+                service.setCityToChat(chatId, Long.parseLong(messageText));
+                sendMessage(chatId, answer);
+            } else {
+                sendMessage(chatId, "I dont know this command!");
             }
+
         } else if (update.hasMessage() && update.getMessage().hasText()) {
             messageText = update.getMessage().getText();
             chatId = update.getMessage().getChatId();
@@ -104,7 +88,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     setButtons(chatId);
                     break;
                 default:
-                    sendMessage(chatId, "I dont know this command!!");
+                    sendMessage(chatId, "I dont know this command!");
                     break;
             }
         }
@@ -148,60 +132,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void setButtons(Long chatId) {
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline3 = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline4 = new ArrayList<>();
-
-        InlineKeyboardButton button1 = new InlineKeyboardButton();
-        button1.setText("Wellington");
-        button1.setCallbackData("/Wellington");
-
-        InlineKeyboardButton button2 = new InlineKeyboardButton();
-        button2.setText("Auckland");
-        button2.setCallbackData("/Auckland");
-
-        InlineKeyboardButton button3 = new InlineKeyboardButton();
-        button3.setText("Rotorua");
-        button3.setCallbackData("/Rotorua");
-
-        InlineKeyboardButton button4 = new InlineKeyboardButton();
-        button4.setText("Petone");
-        button4.setCallbackData("/Petone");
-
-        InlineKeyboardButton button5 = new InlineKeyboardButton();
-        button5.setText("Lower Hutt");
-        button5.setCallbackData("/Lower Hutt");
-
-        InlineKeyboardButton button6 = new InlineKeyboardButton();
-        button6.setText("Upper Hutt");
-        button6.setCallbackData("/Upper Hutt");
-
-        InlineKeyboardButton button7 = new InlineKeyboardButton();
-        button7.setText("Christchurch");
-        button7.setCallbackData("/Christchurch");
-
-        InlineKeyboardButton button8 = new InlineKeyboardButton();
-        button8.setText("Novosibirsk");
-        button8.setCallbackData("/Novosibirsk");
-
-        rowInline1.add(button1);
-        rowInline1.add(button2);
-        rowInline2.add(button3);
-        rowInline2.add(button4);
-        rowInline3.add(button5);
-        rowInline3.add(button6);
-        rowInline4.add(button7);
-        rowInline4.add(button8);
-
-        rowsInline.add(rowInline1);
-        rowsInline.add(rowInline2);
-        rowsInline.add(rowInline3);
-        rowsInline.add(rowInline4);
-
-        markupInline.setKeyboard(rowsInline);
+         InlineKeyboardMarkup markupInline = buttonsBuilder.createButtons(CITIES_MAP);
 
         sendMessage(chatId, markupInline);
     }
