@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -37,7 +38,7 @@ public class WeatherForecastService {
         CurrentForecastDto dto = getCurrentWeather(chatId);
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd MMMM");
 
-        String forecastMessage = "Weather for " + dateFormat.format(LocalDateTime.now()) + "\n" +
+        String forecastMessage = "Weather for " + dto.getCity() + " " + dateFormat.format(LocalDateTime.now()) + "\n" +
                 " Time     Temp. °C          Hum. %    UV\n" +
                 " 8 AM       " + dto.getTemperature()[0] + "      " + dto.getWeatherCode()[0] + "         " + dto.getHumidity()[0] + "         " + dto.getUvIndex()[0] + "\n" +
                 " 12 PM     " + dto.getTemperature()[1] + "      " + dto.getWeatherCode()[1] + "         " + dto.getHumidity()[1] + "         " + dto.getUvIndex()[1] + "\n" +
@@ -53,7 +54,7 @@ public class WeatherForecastService {
         CurrentForecastDto dto = getCurrentWeather(chatId);
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd MMMM");
 
-        String forecastMessage = "Wind forecast for " + dateFormat.format(LocalDateTime.now()) + "\n" +
+        String forecastMessage = "Wind forecast for " + dto.getCity() + " " + dateFormat.format(LocalDateTime.now()) + "\n" +
                 " 8 AM     " + dto.getWindDirection()[0] + "     " + dto.getWindSpeed()[0] + " m/s \n" +
                 " 12 PM   " + dto.getWindDirection()[1] + "     " + dto.getWindSpeed()[1] + " m/s \n" +
                 " 4 PM     " + dto.getWindDirection()[2] + "     " + dto.getWindSpeed()[2] + " m/s \n" +
@@ -69,6 +70,8 @@ public class WeatherForecastService {
 
         if (chatId == null) {
             dto = restTemplate.getForObject(forecastUrlBuilder.getDefaultURL(), WeatherForecastDto.class);
+
+            Objects.requireNonNull(dto).setCity("Wellington");
         } else {
             Long cityId = chatToCityService.getCityId(chatId);
             CityEntity city = service.getCityById(cityId);
@@ -80,6 +83,10 @@ public class WeatherForecastService {
             String url = forecastUrlBuilder.createForecastUrl(parameters);
 
             dto = restTemplate.getForObject(url, WeatherForecastDto.class);
+
+            if (dto != null) {
+                dto.setCity(city.getCity());
+            }
         }
 
         return mapper.toCurrentForecastDto(dto);

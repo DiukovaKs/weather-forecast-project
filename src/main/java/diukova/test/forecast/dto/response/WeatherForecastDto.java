@@ -17,4 +17,6 @@ public class WeatherForecastDto {
     String timezone;
     Hourly hourly;
     HourlyUnits hourly_units;
+
+    String city;
 }
