@@ -96,6 +96,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void startCommandReceived(Long chatId, String name) {
         String answer = "Hi, " + name + ", nice to meet you! \n" +
+                "To get choose city use command   /city \n" +
                 "To get weather condition for current day use command   /weather \n" +
                 "To get wind information for current day use command   /wind";
 
@@ -106,6 +107,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(textToSend);
+        sendMessage.setParseMode("HTML");
 
         try {
             execute(sendMessage);
