@@ -1,5 +1,27 @@
-The project is a small application that provides weather data for the current day through rest requests or a telegram bot. In this version 0.0.1 the weather is determined only for Wellington.
+The project is a small server application that provides weather data for the current day via REST API or a telegram bot.
 
-By request /weather you can get data on temperature, chance of rain, and humidity for 8 a.m., 12 p.m., 4 p.m., and 8 p.m.
+In version 0.0.2, you can select cities such as:
+Wellington, 
+Auckland, 
+Rotorua, 
+Petone, 
+Lower Hutt, 
+Upper Hutt, 
+Christchurch,
+Novosibirsk.
 
-By request /wind you can get data on the direction and strength of the wind for 8 am,  12 p.m., 4 p.m., and 8 p.m.
+To connect to the bot, you need to find it by the name `MyTestWeatherForecastBot`
+
+Requests:
+
+`/city` select a city from the list to receive weather and wind data for this city.
+
+![cities.jpg](images%2Fcities.jpg)
+
+`/weather` get data on temperature, humidity and UV index level for 8 am, 12 pm, 4 pm and 8 pm.
+
+![weather.jpg](images%2Fweather.jpg)
+
+`/wind` get data on wind direction and strength for 8 am, 12 pm, 4 pm and 8 pm.
+
+![wind.jpg](images%2Fwind.jpg)

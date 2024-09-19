@@ -13,4 +13,6 @@ public class CurrentForecastDto {
     String[] windSpeed;
     String[] windDirection;
     String[] uvIndex;
+
+    String city;
 }

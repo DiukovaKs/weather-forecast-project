@@ -59,7 +59,7 @@ public class ForecastUrlBuilder {
         return createForecastUrl(getDefaultParameters());
     }
 
-    private ForecastServiceUrlParametersDto getDefaultParameters() {
+    public ForecastServiceUrlParametersDto getDefaultParameters() {
         ForecastServiceUrlParametersDto parametersDto = new ForecastServiceUrlParametersDto();
         parametersDto.setLongitude("174.7756");
         parametersDto.setLatitude("-41.2866");
