@@ -20,6 +20,8 @@ jobs:
           java-version: '17'       # Установка версии Java
 
       - name: Build with Maven
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: true
         run: mvn clean install
 
       - name: Publish Test Results
